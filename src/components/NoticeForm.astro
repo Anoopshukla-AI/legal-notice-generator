@@ -1,0 +1,763 @@
+---
+// NoticeForm.astro — Dynamic legal notice form with client-side interactivity
+// Rendered as an Astro island (client:load) — all form logic in vanilla JS below.
+---
+
+<section id="notice-form-panel" class="card p-6 lg:p-8">
+  <h2 class="font-serif text-xl mb-1" style="color:var(--color-ink);">Generate Notice</h2>
+  <p class="text-sm mb-6" style="color:var(--color-ink-subtle);">
+    Fill in the fields below. All fields marked <span aria-hidden="true" style="color:var(--color-error);">*</span>
+    <span class="sr-only">required</span> are required.
+  </p>
+
+  <form id="notice-form" novalidate autocomplete="off">
+    <!-- ── Universal Field 1: Notice Type ─────────────────────────── -->
+    <div class="field-group mb-5">
+      <label class="field-label" for="notice-type">
+        Notice Type <span aria-hidden="true" style="color:var(--color-error);">*</span>
+      </label>
+      <select id="notice-type" name="noticeType" class="field-input" required aria-required="true" aria-describedby="notice-type-hint notice-type-error">
+        <option value="" disabled selected>Select your legal scenario…</option>
+        <optgroup label="Full Legal Notices">
+          <option value="rent-demand">Rent Demand Notice</option>
+          <option value="money-recovery">Money Recovery Demand Letter</option>
+          <option value="eviction">Eviction Notice</option>
+          <option value="employment-termination">Employment Termination Notice</option>
+          <option value="cheque-dishonour">Cheque Dishonour Notice (S.138 NI Act)</option>
+        </optgroup>
+        <optgroup label="Contract Clauses">
+          <option value="nda-clause">NDA Confidentiality Clause</option>
+          <option value="payment-default-clause">Payment Default Clause</option>
+          <option value="confidentiality-clause">Confidentiality Clause</option>
+          <option value="termination-clause">Employment Termination Clause</option>
+        </optgroup>
+      </select>
+      <span id="notice-type-hint" class="field-hint">
+        Selecting a type reveals only the fields relevant to that notice.
+      </span>
+      <span id="notice-type-error" class="field-error hidden" role="alert"></span>
+    </div>
+
+    <!-- ── Universal Field 2: Sender Name ────────────────────────── -->
+    <div class="field-group mb-5">
+      <label class="field-label" for="sender-name">
+        Your full name / company name <span aria-hidden="true" style="color:var(--color-error);">*</span>
+      </label>
+      <input
+        type="text"
+        id="sender-name"
+        name="senderName"
+        class="field-input"
+        placeholder="e.g. Anoop / ABC Pvt. Ltd."
+        required
+        aria-required="true"
+        aria-describedby="sender-name-hint sender-name-error"
+        autocomplete="off"
+      />
+      <span id="sender-name-hint" class="field-hint">
+        Use your legal name or registered company name exactly as it appears on official documents.
+      </span>
+      <span id="sender-name-error" class="field-error hidden" role="alert"></span>
+    </div>
+
+    <!-- ── Universal Field 3: Recipient Name ─────────────────────── -->
+    <div class="field-group mb-5">
+      <label class="field-label" for="recipient-name">
+        Recipient's full name / company name <span aria-hidden="true" style="color:var(--color-error);">*</span>
+      </label>
+      <input
+        type="text"
+        id="recipient-name"
+        name="recipientName"
+        class="field-input"
+        placeholder="e.g. Kanchan / XYZ Enterprises"
+        required
+        aria-required="true"
+        aria-describedby="recipient-name-hint recipient-name-error"
+        autocomplete="off"
+      />
+      <span id="recipient-name-hint" class="field-hint">
+        The person or entity to whom the notice is addressed. Use their exact registered name.
+      </span>
+      <span id="recipient-name-error" class="field-error hidden" role="alert"></span>
+    </div>
+
+    <!-- ── Universal Field 4: Date ────────────────────────────────── -->
+    <div class="field-group mb-6">
+      <label class="field-label" for="notice-date">
+        Date of notice <span aria-hidden="true" style="color:var(--color-error);">*</span>
+      </label>
+      <input
+        type="date"
+        id="notice-date"
+        name="date"
+        class="field-input"
+        required
+        aria-required="true"
+        aria-describedby="notice-date-hint notice-date-error notice-date-warning"
+        style="max-width:220px;"
+      />
+      <span id="notice-date-hint" class="field-hint">
+        The date that will appear on the notice. Typically today's date.
+      </span>
+      <span id="notice-date-warning" class="field-hint hidden" style="color:var(--color-warning);" role="status"></span>
+      <span id="notice-date-error" class="field-error hidden" role="alert"></span>
+    </div>
+
+    <!-- ── Dynamic Fields Container ──────────────────────────────── -->
+    <div id="dynamic-fields" aria-live="polite"></div>
+
+    <!-- ── Submit ─────────────────────────────────────────────────── -->
+    <button
+      type="submit"
+      id="generate-btn"
+      class="btn btn-primary w-full mt-2"
+      aria-label="Generate legal notice"
+    >
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+        <path d="M3 8H13M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5"
+          stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      Draft Notice Now
+    </button>
+  </form>
+</section>
+
+<script>
+// ─── Dynamic field definitions ──────────────────────────────────────────────
+const DYNAMIC_FIELDS = {
+  'rent-demand': [
+    {
+      id: 'property-address', name: 'propertyAddress', type: 'text',
+      label: 'Property address', required: true,
+      placeholder: 'e.g. Flat 4B, Sunshine Apartments, MG Road, Bengaluru 560001',
+      hint: 'The full address of the rented property. This identifies the premises in dispute.',
+    },
+    {
+      id: 'amount-due', name: 'amountDue', type: 'number',
+      label: 'Amount due (₹)', required: true, min: 1,
+      placeholder: 'e.g. 25000',
+      hint: 'Total rent arrears as on today. Must be greater than zero.',
+    },
+    {
+      id: 'months-due', name: 'monthsDue', type: 'text',
+      label: 'Months for which rent is due', required: true,
+      placeholder: 'e.g. January 2025 to April 2025',
+      hint: 'Specify the period clearly — courts require this to calculate the amount and assess limitation.',
+    },
+    {
+      id: 'reply-deadline', name: 'replyDeadlineDays', type: 'number',
+      label: 'Reply deadline (days)', required: true, min: 1, max: 90,
+      placeholder: '15',
+      hint: 'Time given to the recipient to pay before legal action. Typically 15–30 days.',
+    },
+  ],
+
+  'money-recovery': [
+    {
+      id: 'amount-claimed', name: 'amountClaimed', type: 'number',
+      label: 'Amount claimed (₹)', required: true, min: 1,
+      placeholder: 'e.g. 50000',
+      hint: 'Total amount owed to you. Must be greater than zero.',
+    },
+    {
+      id: 'reason-for-debt', name: 'reasonForDebt', type: 'text',
+      label: 'Reason for debt', required: true,
+      placeholder: 'e.g. Unpaid loan advanced on 1 January 2025',
+      hint: 'The legal basis for the claim. Be specific — vague reasons weaken the notice.',
+    },
+    {
+      id: 'date-due', name: 'dateDue', type: 'date',
+      label: 'Date amount became due', required: true,
+      hint: 'The date from which the amount was payable. Relevant for limitation and interest calculation.',
+    },
+    {
+      id: 'money-reply-deadline', name: 'replyDeadlineDays', type: 'number',
+      label: 'Reply deadline (days)', required: true, min: 1, max: 90,
+      placeholder: '15',
+      hint: 'Time given to the recipient to repay before you file a suit.',
+    },
+  ],
+
+  'nda-clause': [
+    {
+      id: 'party-a', name: 'partyA', type: 'text',
+      label: 'Party A name', required: true,
+      placeholder: 'e.g. TechCorp Solutions Pvt. Ltd.',
+      hint: 'Full legal name of the first party. Both parties are bound equally in a mutual NDA.',
+    },
+    {
+      id: 'party-b', name: 'partyB', type: 'text',
+      label: 'Party B name', required: true,
+      placeholder: 'e.g. Anika Mehta',
+      hint: 'Full legal name of the second party.',
+    },
+    {
+      id: 'confidentiality-years', name: 'confidentialityYears', type: 'number',
+      label: 'Confidentiality period (years)', required: true, min: 1, max: 10,
+      placeholder: '2',
+      hint: 'How long the NDA remains in force. Standard commercial NDAs run 2–5 years. Maximum 10 years.',
+    },
+    {
+      id: 'jurisdiction', name: 'jurisdiction', type: 'text',
+      label: 'Governing law / jurisdiction', required: true,
+      placeholder: 'e.g. Delhi, India',
+      hint: 'Which city or state courts have jurisdiction over disputes. Must match where you or the contract is based.',
+    },
+  ],
+
+  'eviction': [
+    {
+      id: 'eviction-property', name: 'propertyAddress', type: 'text',
+      label: 'Property address', required: true,
+      placeholder: 'e.g. Shop No. 3, Ground Floor, Commerce House, Pune 411001',
+      hint: 'Complete address of the premises to be vacated.',
+    },
+    {
+      id: 'eviction-reason', name: 'evictionReason', type: 'text',
+      label: 'Reason for eviction', required: true,
+      placeholder: 'e.g. Non-payment of rent for 4 months / expiry of tenancy period',
+      hint: 'Legal ground for eviction. Must correspond to grounds recognised under your State Rent Control Act.',
+    },
+    {
+      id: 'vacate-by-date', name: 'vacateByDate', type: 'date',
+      label: 'Vacate by date', required: true,
+      hint: 'The date by which the tenant must hand over vacant possession.',
+    },
+  ],
+
+  'employment-termination': [
+    {
+      id: 'employee-designation', name: 'employeeDesignation', type: 'text',
+      label: "Employee's designation", required: true,
+      placeholder: 'e.g. Senior Software Engineer',
+      hint: 'The official job title as it appears in the employment contract.',
+    },
+    {
+      id: 'termination-reason', name: 'terminationReason', type: 'text',
+      label: 'Reason for termination', required: true,
+      placeholder: 'e.g. Redundancy due to restructuring / Gross misconduct',
+      hint: 'The legal basis for termination. Vague reasons can be challenged under the Industrial Disputes Act, 1947.',
+    },
+    {
+      id: 'last-working-day', name: 'lastWorkingDay', type: 'date',
+      label: 'Last working day', required: true,
+      hint: 'The final day of employment. Settlement is typically processed on this date.',
+    },
+    {
+      id: 'notice-pay', name: 'noticePay', type: 'number',
+      label: 'Notice pay in lieu (₹)', required: false, min: 0,
+      placeholder: 'e.g. 45000 (leave blank if not applicable)',
+      hint: 'Amount paid instead of serving the notice period. Leave blank if the employee is serving the full notice period.',
+    },
+  ],
+
+  'cheque-dishonour': [
+    {
+      id: 'cheque-number', name: 'chequeNumber', type: 'text',
+      label: 'Cheque number', required: true,
+      placeholder: 'e.g. 004521',
+      hint: 'The 6-digit cheque number printed on the face of the cheque.',
+    },
+    {
+      id: 'cheque-amount', name: 'chequeAmount', type: 'number',
+      label: 'Cheque amount (₹)', required: true, min: 1,
+      placeholder: 'e.g. 100000',
+      hint: 'The exact amount on the dishonoured cheque.',
+    },
+    {
+      id: 'bank-name-branch', name: 'bankNameBranch', type: 'text',
+      label: "Drawer's bank name & branch", required: true,
+      placeholder: 'e.g. State Bank of India, Connaught Place, New Delhi',
+      hint: "The bank from which the cheque was drawn (the payer's bank). Found on the cheque face.",
+    },
+    {
+      id: 'dishonour-date', name: 'dishonourDate', type: 'date',
+      label: 'Date of dishonour (bank memo date)', required: true,
+      hint: 'The date on your bank dishonour memo. S.138 NI Act notice must be sent within 30 days of this date.',
+    },
+    {
+      id: 's138-deadline', name: 'replyDeadlineDays', type: 'number',
+      label: 'Reply deadline (days)', required: true,
+      value: '15', min: 15, max: 15,
+      hint: 'Section 138 NI Act requires exactly 15 days. This cannot be changed.',
+      locked: true,
+    },
+  ],
+
+  'payment-default-clause': [
+    {
+      id: 'clause-amount', name: 'amount', type: 'number',
+      label: 'Principal amount (₹)', required: true, min: 1,
+      placeholder: 'e.g. 500000',
+      hint: 'The principal sum to be repaid.',
+    },
+    {
+      id: 'clause-due-date', name: 'dueDate', type: 'date',
+      label: 'Due date', required: true,
+      hint: 'The date by which the amount must be paid.',
+    },
+    {
+      id: 'late-interest-rate', name: 'lateInterestRate', type: 'number',
+      label: 'Late interest rate (% per month)', required: false, min: 0,
+      placeholder: 'e.g. 1.5',
+      hint: 'Optional interest rate applied if payment is delayed.',
+    },
+    {
+      id: 'clause-jurisdiction', name: 'jurisdiction', type: 'text',
+      label: 'Jurisdiction', required: true,
+      placeholder: 'e.g. Mumbai, India',
+      hint: 'City/State courts with exclusive jurisdiction.',
+    }
+  ],
+
+  'confidentiality-clause': [
+    {
+      id: 'info-nature', name: 'informationNature', type: 'text',
+      label: 'Nature of Information', required: true,
+      placeholder: 'e.g. proprietary algorithms and client lists',
+      hint: 'Brief description of what is considered confidential.',
+    },
+    {
+      id: 'clause-conf-years', name: 'confidentialityYears', type: 'number',
+      label: 'Confidentiality period (years)', required: true, min: 1, max: 10,
+      placeholder: '3',
+      hint: 'Duration of confidentiality obligation.',
+    },
+    {
+      id: 'conf-jurisdiction', name: 'jurisdiction', type: 'text',
+      label: 'Jurisdiction', required: true,
+      placeholder: 'e.g. Bengaluru, India',
+      hint: 'City/State courts with exclusive jurisdiction.',
+    }
+  ],
+
+  'termination-clause': [
+    {
+      id: 'term-designation', name: 'employeeDesignation', type: 'text',
+      label: 'Employee designation', required: true,
+      placeholder: 'e.g. Marketing Manager',
+      hint: 'Job role applicable to this clause.',
+    },
+    {
+      id: 'term-notice-days', name: 'noticePeriodDays', type: 'number',
+      label: 'Notice period (days)', required: true, min: 1,
+      placeholder: 'e.g. 30',
+      hint: 'Required notice for without-cause termination or resignation.',
+    },
+    {
+      id: 'term-severance', name: 'severancePay', type: 'number',
+      label: 'Severance pay (₹)', required: false, min: 0,
+      placeholder: 'e.g. 100000',
+      hint: 'Optional compensation on termination without cause.',
+    },
+    {
+      id: 'term-jurisdiction', name: 'jurisdiction', type: 'text',
+      label: 'Jurisdiction', required: true,
+      placeholder: 'e.g. Delhi, India',
+      hint: 'City/State courts with exclusive jurisdiction.',
+    }
+  ],
+};
+
+// ─── Utility ────────────────────────────────────────────────────────────────
+function showError(fieldId, message) {
+  const el = document.getElementById(fieldId + '-error');
+  const input = document.getElementById(fieldId);
+  if (el) { el.textContent = message; el.classList.remove('hidden'); }
+  if (input) { input.classList.add('is-error'); input.setAttribute('aria-invalid', 'true'); }
+}
+
+function clearError(fieldId) {
+  const el = document.getElementById(fieldId + '-error');
+  const input = document.getElementById(fieldId);
+  if (el) { el.textContent = ''; el.classList.add('hidden'); }
+  if (input) { input.classList.remove('is-error'); input.removeAttribute('aria-invalid'); }
+}
+
+function getVal(id) {
+  const el = document.getElementById(id);
+  return el ? el.value.trim() : '';
+}
+
+function getNumVal(id) {
+  const el = document.getElementById(id);
+  return el ? parseFloat(el.value) : NaN;
+}
+
+// ─── Render dynamic fields ───────────────────────────────────────────────────
+function renderDynamicFields(type) {
+  const container = document.getElementById('dynamic-fields');
+  if (!container) return;
+
+  const fields = DYNAMIC_FIELDS[type] || [];
+  if (fields.length === 0) { container.innerHTML = ''; return; }
+
+  const html = fields.map(f => {
+    const isRequired = f.required ? `required aria-required="true"` : '';
+    const minAttr = f.min !== undefined ? `min="${f.min}"` : '';
+    const maxAttr = f.max !== undefined ? `max="${f.max}"` : '';
+    const valAttr = f.value ? `value="${f.value}"` : '';
+    const lockedAttr = f.locked ? `readonly` : '';
+    const lockedStyle = f.locked ? `style="background:var(--color-surface-alt);cursor:not-allowed;opacity:0.8;"` : '';
+    const descIds = `${f.id}-hint ${f.id}-error`;
+
+    return `
+      <div class="field-group mb-5 animate-fade-in">
+        <label class="field-label" for="${f.id}">
+          ${f.label}${f.required ? ` <span aria-hidden="true" style="color:var(--color-error);">*</span>` : ' <span class="text-xs font-normal" style="color:var(--color-ink-subtle);">(optional)</span>'}
+        </label>
+        <input
+          type="${f.type}"
+          id="${f.id}"
+          name="${f.name}"
+          class="field-input"
+          ${f.placeholder ? `placeholder="${f.placeholder}"` : ''}
+          ${isRequired}
+          ${minAttr} ${maxAttr} ${valAttr} ${lockedAttr} ${lockedStyle}
+          aria-describedby="${descIds}"
+          autocomplete="off"
+        />
+        <span id="${f.id}-hint" class="field-hint">${f.hint}</span>
+        <span id="${f.id}-error" class="field-error hidden" role="alert"></span>
+      </div>
+    `;
+  }).join('');
+
+  container.innerHTML = `
+    <div class="border-t pt-5 mb-5" style="border-color:var(--color-border);">
+      <p class="text-xs font-medium mb-4 uppercase tracking-wide" style="color:var(--color-ink-subtle);">
+        Fields for this notice type
+      </p>
+      ${html}
+    </div>
+  `;
+}
+
+// ─── Validation ──────────────────────────────────────────────────────────────
+function validateForm(type) {
+  let valid = true;
+  let firstErrorId = null;
+
+  function fail(id, msg) {
+    showError(id, msg);
+    if (!firstErrorId) firstErrorId = id;
+    valid = false;
+  }
+
+  // Universal fields
+  const noticeType = getVal('notice-type');
+  if (!noticeType) fail('notice-type', 'Please select a notice type.');
+
+  const senderName = getVal('sender-name');
+  if (!senderName) fail('sender-name', 'Your name or company name is required.');
+
+  const recipientName = getVal('recipient-name');
+  if (!recipientName) fail('recipient-name', 'Recipient name is required.');
+
+  const noticeDate = getVal('notice-date');
+  if (!noticeDate) {
+    fail('notice-date', 'Date of notice is required.');
+  } else {
+    // Warning only for dates > 30 days in the past
+    const dateVal = new Date(noticeDate + 'T00:00:00');
+    const today = new Date();
+    today.setHours(0,0,0,0);
+    const diffDays = (today - dateVal) / (1000 * 60 * 60 * 24);
+    const warnEl = document.getElementById('notice-date-warning');
+    if (warnEl) {
+      if (diffDays > 30) {
+        warnEl.textContent = 'This date is more than 30 days in the past. Verify this is intentional.';
+        warnEl.classList.remove('hidden');
+      } else {
+        warnEl.textContent = '';
+        warnEl.classList.add('hidden');
+      }
+    }
+  }
+
+  // Dynamic field validation
+  const fields = DYNAMIC_FIELDS[type] || [];
+  for (const f of fields) {
+    if (!f.required) continue;
+
+    const el = document.getElementById(f.id);
+    if (!el) continue;
+
+    const val = el.value.trim();
+
+    if (!val) {
+      fail(f.id, `${f.label} is required.`);
+      continue;
+    }
+
+    if (f.type === 'number') {
+      const num = parseFloat(val);
+      if (isNaN(num)) {
+        fail(f.id, `${f.label} must be a valid number.`);
+        continue;
+      }
+      if (f.min !== undefined && num < f.min) {
+        if (f.locked) {
+          // Silently clamp — don't show error, just enforce value
+          el.value = String(f.min);
+        } else if (f.id === 'reply-deadline' || f.id === 'money-reply-deadline') {
+          fail(f.id, 'Minimum 1 day required.');
+        } else if (f.id === 'amount-due' || f.id === 'amount-claimed' || f.id === 'cheque-amount') {
+          fail(f.id, 'Amount must be greater than zero.');
+        } else if (f.id === 'confidentiality-years') {
+          fail(f.id, 'Confidentiality period must be at least 1 year.');
+        } else {
+          fail(f.id, `Minimum value is ${f.min}.`);
+        }
+        continue;
+      }
+      if (f.max !== undefined && num > f.max) {
+        if (f.locked) {
+          el.value = String(f.max);
+        } else if (f.id === 'confidentiality-years') {
+          fail(f.id, 'Standard NDA periods are 1–10 years.');
+        } else {
+          fail(f.id, `Maximum value is ${f.max}.`);
+        }
+        continue;
+      }
+    }
+  }
+
+  // Scroll to first error on mobile
+  if (!valid && firstErrorId) {
+    const errorEl = document.getElementById(firstErrorId);
+    if (errorEl && window.innerWidth < 768) {
+      errorEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  }
+
+  return valid;
+}
+
+// ─── Collect form data ───────────────────────────────────────────────────────
+function collectData(type) {
+  const base = {
+    senderName: getVal('sender-name'),
+    recipientName: getVal('recipient-name'),
+    date: getVal('notice-date'),
+  };
+
+  switch (type) {
+    case 'rent-demand':
+      return { ...base,
+        propertyAddress: getVal('property-address'),
+        amountDue: getNumVal('amount-due'),
+        monthsDue: getVal('months-due'),
+        replyDeadlineDays: Math.max(1, Math.min(90, getNumVal('reply-deadline'))),
+      };
+    case 'money-recovery':
+      return { ...base,
+        amountClaimed: getNumVal('amount-claimed'),
+        reasonForDebt: getVal('reason-for-debt'),
+        dateDue: getVal('date-due'),
+        replyDeadlineDays: Math.max(1, Math.min(90, getNumVal('money-reply-deadline'))),
+      };
+    case 'nda-clause':
+      return { ...base,
+        partyA: getVal('party-a'),
+        partyB: getVal('party-b'),
+        confidentialityYears: Math.max(1, Math.min(10, getNumVal('confidentiality-years'))),
+        jurisdiction: getVal('jurisdiction'),
+      };
+    case 'eviction':
+      return { ...base,
+        propertyAddress: getVal('eviction-property'),
+        evictionReason: getVal('eviction-reason'),
+        vacateByDate: getVal('vacate-by-date'),
+      };
+    case 'employment-termination': {
+      const noticePayEl = document.getElementById('notice-pay');
+      const noticePayVal = noticePayEl ? noticePayEl.value.trim() : '';
+      return { ...base,
+        employeeDesignation: getVal('employee-designation'),
+        terminationReason: getVal('termination-reason'),
+        lastWorkingDay: getVal('last-working-day'),
+        noticePay: noticePayVal !== '' ? parseFloat(noticePayVal) : undefined,
+      };
+    }
+    case 'cheque-dishonour':
+      return { ...base,
+        chequeNumber: getVal('cheque-number'),
+        chequeAmount: getNumVal('cheque-amount'),
+        bankNameBranch: getVal('bank-name-branch'),
+        dishonourDate: getVal('dishonour-date'),
+        replyDeadlineDays: 15, // locked
+      };
+    case 'payment-default-clause':
+      return { ...base,
+        amount: getNumVal('clause-amount'),
+        dueDate: getVal('clause-due-date'),
+        lateInterestRate: getVal('late-interest-rate') ? getNumVal('late-interest-rate') : undefined,
+        jurisdiction: getVal('clause-jurisdiction')
+      };
+    case 'confidentiality-clause':
+      return { ...base,
+        informationNature: getVal('info-nature'),
+        confidentialityYears: Math.max(1, Math.min(10, getNumVal('clause-conf-years'))),
+        jurisdiction: getVal('conf-jurisdiction')
+      };
+    case 'termination-clause':
+      return { ...base,
+        employeeDesignation: getVal('term-designation'),
+        noticePeriodDays: getNumVal('term-notice-days'),
+        severancePay: getVal('term-severance') ? getNumVal('term-severance') : undefined,
+        jurisdiction: getVal('term-jurisdiction')
+      };
+    default:
+      return base;
+  }
+}
+
+// ─── Generate notice text ────────────────────────────────────────────────────
+function generateNoticeText(type, data) {
+  // Import-style dynamic dispatch — templates module is bundled at build
+  // We use a global window.__templates set by the bundled script below
+  const templates = window.__LNG_TEMPLATES;
+  if (!templates) return null;
+
+  switch (type) {
+    case 'rent-demand':          return templates.generateRentDemand(data);
+    case 'money-recovery':       return templates.generateMoneyRecovery(data);
+    case 'nda-clause':           return templates.generateNDAClause(data);
+    case 'eviction':             return templates.generateEviction(data);
+    case 'employment-termination': return templates.generateEmploymentTermination(data);
+    case 'cheque-dishonour':     return templates.generateChequeDishonour(data);
+    case 'payment-default-clause': return templates.generatePaymentDefaultClause(data);
+    case 'confidentiality-clause': return templates.generateConfidentialityClause(data);
+    case 'termination-clause':   return templates.generateTerminationClause(data);
+    default: return null;
+  }
+}
+
+// ─── Debounce ────────────────────────────────────────────────────────────────
+function debounce(fn, ms) {
+  let timer;
+  return (...args) => {
+    clearTimeout(timer);
+    timer = setTimeout(() => fn(...args), ms);
+  };
+}
+
+// ─── Main Init ───────────────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  const form = document.getElementById('notice-form');
+  const typeSelect = document.getElementById('notice-type');
+  const dateInput = document.getElementById('notice-date');
+
+  // Set default date to today
+  if (dateInput && !dateInput.value) {
+    const today = new Date();
+    const iso = today.toISOString().split('T')[0];
+    dateInput.value = iso;
+  }
+
+  // Clear errors on input
+  form?.querySelectorAll('input, select').forEach(el => {
+    el.addEventListener('input', () => clearError(el.id));
+    el.addEventListener('change', () => clearError(el.id));
+  });
+
+  // Render dynamic fields on type change
+  typeSelect?.addEventListener('change', () => {
+    const type = typeSelect.value;
+    renderDynamicFields(type);
+    clearError('notice-type');
+
+    // After rendering, attach live-preview debounce to new inputs
+    attachLivePreview(type);
+  });
+
+  // Debounced live preview
+  let lastGeneratedType = null;
+  let hasGeneratedOnce = false;
+
+  function tryLivePreview(type) {
+    if (!hasGeneratedOnce) return;
+    if (!type) return;
+    const data = collectData(type);
+    const text = generateNoticeText(type, data);
+    if (text) updatePreview(text);
+  }
+
+  const debouncedPreview = debounce((type) => tryLivePreview(type), 600);
+
+  function attachLivePreview(type) {
+    const dynamicContainer = document.getElementById('dynamic-fields');
+    dynamicContainer?.querySelectorAll('input').forEach(el => {
+      el.addEventListener('input', () => debouncedPreview(type));
+    });
+    // Also watch universal fields
+    ['sender-name', 'recipient-name', 'notice-date'].forEach(id => {
+      document.getElementById(id)?.addEventListener('input', () => debouncedPreview(type));
+    });
+  }
+
+  // Form submit
+  form?.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const type = typeSelect?.value || '';
+
+    // Clear all existing errors
+    const allErrors = form.querySelectorAll('.field-error');
+    allErrors.forEach(el => { el.textContent = ''; el.classList.add('hidden'); });
+    const allInputs = form.querySelectorAll('.field-input');
+    allInputs.forEach(el => { el.classList.remove('is-error'); el.removeAttribute('aria-invalid'); });
+
+    if (!validateForm(type)) return;
+
+    const data = collectData(type);
+    const text = generateNoticeText(type, data);
+
+    if (!text) {
+      updatePreview(null, 'An error occurred generating the notice. Please check your inputs.');
+      return;
+    }
+
+    hasGeneratedOnce = true;
+    lastGeneratedType = type;
+    updatePreview(text);
+    attachLivePreview(type);
+  });
+});
+
+// ─── Preview bridge ──────────────────────────────────────────────────────────
+function updatePreview(text, errorMsg) {
+  window.dispatchEvent(new CustomEvent('lng:preview-update', {
+    detail: { text, errorMsg }
+  }));
+}
+</script>
+
+<!-- Load templates bundle so the JS above can call window.__LNG_TEMPLATES -->
+<script>
+import {
+  generateRentDemand,
+  generateMoneyRecovery,
+  generateNDAClause,
+  generateEviction,
+  generateEmploymentTermination,
+  generateChequeDishonour,
+  generatePaymentDefaultClause,
+  generateConfidentialityClause,
+  generateTerminationClause,
+} from '../lib/templates.ts';
+
+window.__LNG_TEMPLATES = {
+  generateRentDemand,
+  generateMoneyRecovery,
+  generateNDAClause,
+  generateEviction,
+  generateEmploymentTermination,
+  generateChequeDishonour,
+  generatePaymentDefaultClause,
+  generateConfidentialityClause,
+  generateTerminationClause,
+};
+</script>

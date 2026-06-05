@@ -1,0 +1,174 @@
+---
+import Layout from '../layouts/Layout.astro';
+import NoticeForm from '../components/NoticeForm.astro';
+import NoticePreview from '../components/NoticePreview.astro';
+import DisclaimerBanner from '../components/DisclaimerBanner.astro';
+---
+
+<Layout
+  title="Legal Notice Generator — Free India-Format Legal Notices"
+  description="Generate a legal notice, demand letter, or NDA clause in seconds. Free, no login. Runs in your browser. India formats including S.138 cheque dishonour, rent demand, eviction, and employment termination."
+>
+
+  <!-- ── Hero ──────────────────────────────────────────────────────────── -->
+  <section class="section" style="padding-bottom:32px;">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6">
+      <div class="max-w-3xl">
+        <p class="text-xs font-semibold uppercase tracking-widest mb-4 flex items-center gap-2" style="color:var(--color-teal);">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M8 2L2 5v4c0 3.8 2.5 7.2 6 8.5C11.5 16.2 14 12.8 14 9V5L8 2z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          A Public Utility for India
+        </p>
+        <h1 class="font-serif mb-4" style="color:var(--color-ink);line-height:1.1;">
+          Draft your legal notice in minutes.<br/>No lawyers. No fees.
+        </h1>
+        <p class="text-lg leading-relaxed mb-6" style="color:var(--color-ink-muted);max-width:58ch;">
+          A privacy-first, free tool. Generate highly accurate, format-compliant Indian legal notices for rent demands, cheque bounces (S.138), and evictions directly in your browser. Nothing is saved to our servers.
+        </p>
+        
+        <!-- Trust Markers -->
+        <div class="flex flex-wrap gap-4 mt-8 text-sm" style="color:var(--color-ink-subtle);">
+          <span class="flex items-center gap-1.5 px-3 py-1.5 rounded-full" style="background:var(--color-surface-alt);border:1px solid var(--color-border);">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7.5L5.5 11L12 4" stroke="var(--color-teal)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            100% Free Forever
+          </span>
+          <span class="flex items-center gap-1.5 px-3 py-1.5 rounded-full" style="background:var(--color-surface-alt);border:1px solid var(--color-border);">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7.5L5.5 11L12 4" stroke="var(--color-teal)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            No Login Required
+          </span>
+          <span class="flex items-center gap-1.5 px-3 py-1.5 rounded-full" style="background:var(--color-surface-alt);border:1px solid var(--color-border);">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7.5L5.5 11L12 4" stroke="var(--color-teal)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Data Never Leaves Device
+          </span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Disclaimer ──────────────────────────────────────────────────────── -->
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 mb-10 mt-4">
+    <DisclaimerBanner />
+  </div>
+
+  <!-- ── Tool: Form + Preview ───────────────────────────────────────────── -->
+  <section id="tool" class="max-w-6xl mx-auto px-4 sm:px-6 mb-16" aria-label="Legal notice generator tool">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+      <!-- Form panel (left on desktop, first on mobile) -->
+      <div id="form-column">
+        <NoticeForm />
+      </div>
+
+      <!-- Preview panel (right on desktop, second on mobile) -->
+      <div id="preview-column" class="lg:sticky lg:top-20">
+        <NoticePreview />
+      </div>
+    </div>
+  </section>
+
+  <!-- ── What Happens Next ──────────────────────────────────────────────── -->
+  <section class="section py-16" style="background:var(--color-surface-alt);border-top:1px solid var(--color-border);border-bottom:1px solid var(--color-border);" aria-label="How to use your draft">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6">
+      <div class="text-center mb-12">
+        <h2 class="font-serif text-3xl mb-4" style="color:var(--color-ink);">What happens next?</h2>
+        <p class="text-base" style="color:var(--color-ink-subtle);">Follow these precise steps to ensure your notice has legal standing.</p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-6 relative">
+        <!-- Connecting Line for desktop -->
+        <div class="hidden md:block absolute top-6 left-[12%] right-[12%] h-[1px] bg-gray-300 dark:bg-zinc-700 z-0"></div>
+
+        <div class="flex flex-col items-center text-center relative z-10">
+          <div class="w-12 h-12 rounded-full flex items-center justify-center font-serif text-lg bg-white dark:bg-zinc-900 border mb-4" style="color:var(--color-teal);border-color:var(--color-teal);">1</div>
+          <h3 class="font-medium mb-2" style="color:var(--color-ink);">Review & Print</h3>
+          <p class="text-sm" style="color:var(--color-ink-muted);">Print the generated document on plain A4 paper. Carefully review all dates, names, and amounts. Sign at the bottom.</p>
+        </div>
+
+        <div class="flex flex-col items-center text-center relative z-10">
+          <div class="w-12 h-12 rounded-full flex items-center justify-center font-serif text-lg bg-white dark:bg-zinc-900 border mb-4" style="color:var(--color-teal);border-color:var(--color-teal);">2</div>
+          <h3 class="font-medium mb-2" style="color:var(--color-ink);">Send via RPAD</h3>
+          <p class="text-sm" style="color:var(--color-ink-muted);">Go to India Post. Send the physical copy via <strong>Registered Post with Acknowledgment Due (RPAD)</strong>. Keep the postal receipt safe.</p>
+        </div>
+
+        <div class="flex flex-col items-center text-center relative z-10">
+          <div class="w-12 h-12 rounded-full flex items-center justify-center font-serif text-lg bg-white dark:bg-zinc-900 border mb-4" style="color:var(--color-teal);border-color:var(--color-teal);">3</div>
+          <h3 class="font-medium mb-2" style="color:var(--color-ink);">Track Delivery</h3>
+          <p class="text-sm" style="color:var(--color-ink-muted);">When the acknowledgment card returns signed, staple it to your copy of the notice. This is your irrefutable proof of service.</p>
+        </div>
+
+        <div class="flex flex-col items-center text-center relative z-10">
+          <div class="w-12 h-12 rounded-full flex items-center justify-center font-serif text-lg bg-white dark:bg-zinc-900 border mb-4" style="color:var(--color-teal);border-color:var(--color-teal);">4</div>
+          <h3 class="font-medium mb-2" style="color:var(--color-ink);">Wait & Consult</h3>
+          <p class="text-sm" style="color:var(--color-ink-muted);">Wait for the deadline to pass. If they do not comply, consult a registered advocate to file a formal suit in court using this notice as evidence.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── FAQ Section ─────────────────────────────────────────────────────── -->
+  <section class="section py-16 max-w-4xl mx-auto px-4 sm:px-6" aria-label="Frequently asked questions">
+    <div class="text-center mb-10">
+      <h2 class="font-serif text-3xl mb-2" style="color:var(--color-ink);">Common Questions</h2>
+    </div>
+
+    <div class="space-y-2" id="faq-list">
+
+      <div class="faq-item border-b pb-4 mb-4" style="border-color:var(--color-border);">
+        <details>
+          <summary class="font-medium cursor-pointer flex justify-between items-center py-2 hover:opacity-80 transition-opacity" style="color:var(--color-ink);">
+            Is this legal notice legally valid in India?
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true" class="chevron shrink-0">
+              <path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </summary>
+          <div class="faq-body text-sm mt-3 leading-relaxed" style="color:var(--color-ink-muted);">
+            A generated notice is a reference template, not a court-filed document. Legal notices under Indian law
+            are valid when properly drafted, signed, and sent via Registered Post (RPAD). This tool handles the drafting; you are responsible for the signing and dispatching.
+          </div>
+        </details>
+      </div>
+
+      <div class="faq-item border-b pb-4 mb-4" style="border-color:var(--color-border);">
+        <details>
+          <summary class="font-medium cursor-pointer flex justify-between items-center py-2 hover:opacity-80 transition-opacity" style="color:var(--color-ink);">
+            Can I send this notice via email?
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true" class="chevron shrink-0">
+              <path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </summary>
+          <div class="faq-body text-sm mt-3 leading-relaxed" style="color:var(--color-ink-muted);">
+            Email is legally recognised under the IT Act, 2000 if the recipient has consented to electronic communication. However, for maximum legal standing (especially for S.138 Cheque Bounce notices), you must send by Registered Post with Acknowledgment Due (RPAD). Use email only as a supplementary method.
+          </div>
+        </details>
+      </div>
+
+      <div class="faq-item border-b pb-4 mb-4" style="border-color:var(--color-border);">
+        <details>
+          <summary class="font-medium cursor-pointer flex justify-between items-center py-2 hover:opacity-80 transition-opacity" style="color:var(--color-ink);">
+            Are there any hidden fees to download?
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true" class="chevron shrink-0">
+              <path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </summary>
+          <div class="faq-body text-sm mt-3 leading-relaxed" style="color:var(--color-ink-muted);">
+            No. The tool is 100% free forever. There are no paywalls, no login screens, and no watermarks. We rely entirely on voluntary support to keep the servers running.
+          </div>
+        </details>
+      </div>
+
+      <div class="faq-item border-b pb-4" style="border-color:var(--color-border);">
+        <details>
+          <summary class="font-medium cursor-pointer flex justify-between items-center py-2 hover:opacity-80 transition-opacity" style="color:var(--color-ink);">
+            Does this tool store my private information?
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true" class="chevron shrink-0">
+              <path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </summary>
+          <div class="faq-body text-sm mt-3 leading-relaxed" style="color:var(--color-ink-muted);">
+            Absolutely not. The logic runs entirely in your local browser using JavaScript. No names, amounts, or generated text are ever sent to our servers or saved in any database. Closing the browser tab permanently erases everything you entered.
+          </div>
+        </details>
+      </div>
+
+    </div>
+  </section>
+
+</Layout>

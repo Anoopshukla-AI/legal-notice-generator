@@ -1,0 +1,227 @@
+---
+import '../styles/global.css';
+
+interface Props {
+  title?: string;
+  description?: string;
+  canonical?: string;
+}
+
+const {
+  title = 'Legal Notice Generator — Free India-Format Legal Notices',
+  description = 'Generate a legal notice, demand letter, or NDA clause in seconds. Free, no login. Runs in your browser. India formats including S.138 cheque dishonour, rent demand, eviction, and employment termination.',
+  canonical = 'https://legalnoticegenerator.in/',
+} = Astro.props;
+
+const webAppSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'WebApplication',
+  name: 'Legal Notice Generator',
+  url: canonical,
+  description,
+  applicationCategory: 'LegalService',
+  operatingSystem: 'Any',
+  browserRequirements: 'Requires JavaScript',
+  offers: {
+    '@type': 'Offer',
+    price: '0',
+    priceCurrency: 'INR',
+  },
+  inLanguage: 'en-IN',
+};
+
+const faqSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: [
+    {
+      '@type': 'Question',
+      name: 'Is this legal notice legally valid in India?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'A generated notice is a reference template, not a court-filed document. Legal notices under Indian law (CPC Section 80, NI Act Section 138) are valid when properly drafted, signed, and sent — ideally via Registered Post with Acknowledgment Due (RPAD). This tool generates the text; you are responsible for reviewing, signing, and dispatching it. For formal proceedings, have a registered advocate review the notice before sending.',
+      },
+    },
+    {
+      '@type': 'Question',
+      name: 'What is a legal notice under Section 80 CPC?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: "Section 80 of the Code of Civil Procedure, 1908 (CPC) requires that before filing a civil suit against the Government of India or a Government officer, the claimant must serve a two-month notice. This notice must include the cause of action, relief sought, and the claimant's contact details. Failure to serve Section 80 notice can result in the suit being dismissed.",
+      },
+    },
+    {
+      '@type': 'Question',
+      name: 'Can I send this notice via email?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: "Email delivery is legally recognised under the Information Technology Act, 2000, if the recipient has consented to email communication or if there is a pre-existing email-based relationship. However, for maximum legal standing — especially for cheque dishonour notices under Section 138 NI Act — send by Registered Post with Acknowledgment Due (RPAD). RPAD creates an irrefutable delivery record admissible in court.",
+      },
+    },
+    {
+      '@type': 'Question',
+      name: 'What is an NDA clause?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: "An NDA (Non-Disclosure Agreement) clause is a contractual obligation requiring one or both parties to keep specified information confidential for a defined period. A mutual NDA clause binds both parties equally. Under Indian law, NDAs are enforceable as contracts under the Indian Contract Act, 1872. The clause should specify: what information is confidential, the obligations of each party, exclusions (publicly available information), the confidentiality period, and the governing jurisdiction.",
+      },
+    },
+    {
+      '@type': 'Question',
+      name: 'Does this tool store my information?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'No. This tool runs entirely in your browser using JavaScript. No form data, personal names, amounts, or generated notice text is transmitted to any server. No cookies, localStorage, or analytics are used to capture notice content. Closing the browser tab permanently clears everything you entered.',
+      },
+    },
+  ],
+};
+---
+
+<!doctype html>
+<html lang="en-IN" class="light">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content={description} />
+    <meta name="robots" content="index, follow" />
+    <meta name="author" content="Legal Notice Generator" />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:locale" content="en_IN" />
+
+    <!-- Canonical -->
+    <link rel="canonical" href={canonical} />
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400&display=swap"
+      rel="stylesheet"
+    />
+
+    <title>{title}</title>
+
+    <!-- JSON-LD Structured Data -->
+    <script type="application/ld+json" set:html={JSON.stringify(webAppSchema)} />
+    <script type="application/ld+json" set:html={JSON.stringify(faqSchema)} />
+
+    <!-- Dark Mode Init (inline, no-flash, no storage) -->
+    <script is:inline>
+      // Reads system preference only — no localStorage (Cloudflare Pages sandbox constraint)
+      (function () {
+        var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        if (prefersDark) {
+          document.documentElement.classList.replace('light', 'dark');
+        }
+      })();
+    </script>
+  </head>
+  <body>
+    <!-- Site Header -->
+    <header class="sticky top-0 z-40 border-b" style="background:var(--color-surface);border-color:var(--color-border);">
+      <div class="max-w-6xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between gap-4">
+        <!-- Logo / Brand -->
+        <a href="/" class="flex items-center gap-2 shrink-0" aria-label="Legal Notice Generator home">
+          <svg width="22" height="22" viewBox="0 0 22 22" fill="none" aria-hidden="true">
+            <path d="M11 1.5L2.5 5.5V10.5C2.5 15.2 6.2 19.6 11 20.5C15.8 19.6 19.5 15.2 19.5 10.5V5.5L11 1.5Z"
+              fill="var(--color-teal)" opacity="0.15" stroke="var(--color-teal)" stroke-width="1.5" stroke-linejoin="round"/>
+            <path d="M7.5 11L10 13.5L14.5 9" stroke="var(--color-teal)" stroke-width="1.5"
+              stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <span class="font-serif text-base font-normal" style="color:var(--color-ink);">Legal Notice Generator</span>
+        </a>
+
+        <!-- Right side: privacy badge + dark mode toggle -->
+        <div class="flex items-center gap-3">
+          <span class="privacy-badge hidden sm:inline-flex" aria-label="Privacy: runs in browser, no data stored">
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+              <path d="M6 0.75L1.25 2.875V5.75C1.25 8.375 3.35 10.825 6 11.25C8.65 10.825 10.75 8.375 10.75 5.75V2.875L6 0.75Z"
+                fill="currentColor" opacity="0.25" stroke="currentColor" stroke-width="0.75"/>
+              <path d="M4 6L5.5 7.5L8 5" stroke="currentColor" stroke-width="0.75"
+                stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Runs in browser. No data stored.
+          </span>
+
+          <!-- Dark Mode Toggle -->
+          <button
+            id="dark-mode-toggle"
+            type="button"
+            class="btn btn-ghost p-2 rounded-md"
+            aria-label="Toggle dark mode"
+            style="min-height:36px;padding:6px;"
+          >
+            <!-- Sun icon (shown in dark mode) -->
+            <svg id="icon-sun" width="18" height="18" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"
+              class="hidden dark:block">
+              <circle cx="12" cy="12" r="5"/>
+              <line x1="12" y1="1" x2="12" y2="3"/>
+              <line x1="12" y1="21" x2="12" y2="23"/>
+              <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
+              <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+              <line x1="1" y1="12" x2="3" y2="12"/>
+              <line x1="21" y1="12" x2="23" y2="12"/>
+              <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
+              <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+            </svg>
+            <!-- Moon icon (shown in light mode) -->
+            <svg id="icon-moon" width="18" height="18" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"
+              class="block dark:hidden">
+              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Page Content -->
+    <main>
+      <slot />
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t py-8 mt-16" style="border-color:var(--color-border); background:var(--color-surface-alt);">
+      <div class="max-w-6xl mx-auto px-4 sm:px-6 flex flex-col md:flex-row items-center justify-between gap-6 text-sm" style="color:var(--color-ink-subtle);">
+        <div class="flex flex-col gap-1 items-center md:items-start text-center md:text-left">
+          <p class="font-medium" style="color:var(--color-ink);">Built for the public. Free forever.</p>
+          <p>&copy; {new Date().getFullYear()} Legal Notice Generator. Templates are for reference only.</p>
+        </div>
+        <div class="flex items-center gap-4">
+          <a href="https://buymeachai.ezee.li/anoops" target="_blank" rel="noopener noreferrer" class="hover:underline" style="color:var(--color-teal);">
+            ☕ Support the project
+          </a>
+          <span class="w-px h-4 bg-gray-300 dark:bg-zinc-700"></span>
+          <span class="flex items-center gap-1.5 opacity-80" title="100% Client-Side">
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+              <path d="M6 0.75L1.25 2.875V5.75C1.25 8.375 3.35 10.825 6 11.25C8.65 10.825 10.75 8.375 10.75 5.75V2.875L6 0.75Z" fill="currentColor" opacity="0.25" stroke="currentColor" stroke-width="0.75"/>
+              <path d="M4 6L5.5 7.5L8 5" stroke="currentColor" stroke-width="0.75" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            No data stored
+          </span>
+        </div>
+      </div>
+    </footer>
+
+    <!-- Dark Mode Toggle Script -->
+    <script>
+      const toggle = document.getElementById('dark-mode-toggle');
+      toggle?.addEventListener('click', () => {
+        const html = document.documentElement;
+        const isDark = html.classList.contains('dark');
+        html.classList.toggle('dark', !isDark);
+        html.classList.toggle('light', isDark);
+      });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,312 @@
+---
+// NoticePreview.astro — Real-time preview panel for generated legal notices
+---
+
+<section id="notice-preview-panel" class="card p-6 lg:p-8 flex flex-col gap-4">
+  <!-- Header row: title + action buttons -->
+  <div class="flex items-center justify-between gap-3 flex-wrap">
+    <h2 class="font-serif text-xl" style="color:var(--color-ink);">Notice Preview</h2>
+    <div class="flex items-center gap-2">
+      <button
+        id="copy-btn"
+        type="button"
+        class="btn btn-secondary text-sm"
+        disabled
+        aria-label="Copy notice text to clipboard"
+        style="min-height:38px;padding:8px 14px;"
+      >
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+          <rect x="5" y="5" width="9" height="9" rx="1.5" stroke="currentColor" stroke-width="1.5"/>
+          <path d="M11 5V3.5A1.5 1.5 0 0 0 9.5 2h-6A1.5 1.5 0 0 0 2 3.5v6A1.5 1.5 0 0 0 3.5 11H5"
+            stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+        Copy
+      </button>
+      <button
+        id="download-btn"
+        type="button"
+        class="btn btn-secondary text-sm"
+        disabled
+        aria-label="Download notice as .txt file"
+        style="min-height:38px;padding:8px 14px;"
+      >
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+          <path d="M8 2v8M5 7l3 3 3-3" stroke="currentColor" stroke-width="1.5"
+            stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M2 11v1.5A1.5 1.5 0 0 0 3.5 14h9a1.5 1.5 0 0 0 1.5-1.5V11"
+            stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+        Download .txt
+      </button>
+      <button
+        id="print-btn"
+        type="button"
+        class="btn btn-secondary text-sm"
+        disabled
+        aria-label="Print or save as PDF"
+        style="min-height:38px;padding:8px 14px;"
+      >
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+          <path d="M4.5 5V2.5A1.5 1.5 0 0 1 6 1h4a1.5 1.5 0 0 1 1.5 1.5V5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          <path d="M4 11H2.5A1.5 1.5 0 0 1 1 9.5v-3A1.5 1.5 0 0 1 2.5 5h11A1.5 1.5 0 0 1 15 6.5v3a1.5 1.5 0 0 1-1.5 1.5H12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          <rect x="4" y="9" width="8" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/>
+        </svg>
+        Print
+      </button>
+    </div>
+  </div>
+
+  <!-- Preview area -->
+  <div id="preview-area">
+    <!-- Empty state (shown until first generation) -->
+    <div id="preview-empty" class="empty-state">
+      <svg width="48" height="48" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+        <rect x="8" y="4" width="28" height="36" rx="3" fill="var(--color-surface-alt)" stroke="var(--color-border)" stroke-width="1.5"/>
+        <rect x="8" y="4" width="28" height="36" rx="3" stroke="var(--color-border)" stroke-width="1.5"/>
+        <path d="M14 14h16M14 20h16M14 26h10" stroke="var(--color-border)" stroke-width="1.5" stroke-linecap="round"/>
+        <circle cx="36" cy="36" r="8" fill="var(--color-surface)" stroke="var(--color-border)" stroke-width="1.5"/>
+        <path d="M36 32v4M36 36h0" stroke="var(--color-ink-subtle)" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+      <p class="text-sm font-medium" style="color:var(--color-ink-subtle);">
+        Fill the form and click <strong>Generate Notice</strong> to see a preview here.
+      </p>
+    </div>
+
+    <!-- Generated notice (hidden until generated) -->
+    <div id="preview-content" class="hidden flex flex-col gap-4">
+      <div class="relative bg-white border border-gray-200 rounded-sm shadow-sm overflow-hidden dark:bg-zinc-900 dark:border-zinc-700" style="padding:40px 32px;">
+        <pre id="preview-text" class="notice-preview font-serif text-sm leading-relaxed whitespace-pre-wrap" aria-label="Generated notice text" tabindex="0" style="color:#000;"></pre>
+      </div>
+      
+      <!-- Feature 4: Next Steps & Guidance -->
+      <div id="guidance-box" class="p-4 rounded-md text-sm border hidden" style="background:var(--color-surface);border-color:var(--color-border);">
+        <h4 class="font-serif font-medium mb-2" style="color:var(--color-ink);">Next Steps & Guidance</h4>
+        <div id="guidance-text" style="color:var(--color-ink-subtle);"></div>
+      </div>
+
+      <!-- Support Prompt (shown after generation) -->
+      <div class="mt-2 p-4 rounded-md text-sm border flex flex-col sm:flex-row gap-4 items-center justify-between" style="background:var(--color-surface-alt);border-color:var(--color-border);">
+        <div style="color:var(--color-ink-muted);">
+          <strong style="color:var(--color-ink);">Free forever. No login. No ads.</strong><br/>
+          If this tool saved you a ₹5,000 consultation fee today, support future updates with a chai.
+        </div>
+        <a href="https://buymeachai.ezee.li/anoops" target="_blank" rel="noopener noreferrer" class="btn btn-secondary whitespace-nowrap shrink-0 hover:bg-teal-50 dark:hover:bg-teal-900/30" style="color:var(--color-teal);border-color:var(--color-teal);">
+          ☕ Buy me a chai (₹50)
+        </a>
+      </div>
+    </div>
+
+    <!-- Error state -->
+    <div id="preview-error" class="hidden p-4 rounded-md text-sm" style="background:rgba(192,57,43,0.07);color:var(--color-error);border:1px solid rgba(192,57,43,0.2);">
+      <span id="preview-error-msg"></span>
+    </div>
+  </div>
+</section>
+
+<!-- Toast notification -->
+<div id="copy-toast" class="toast" role="status" aria-live="polite" aria-atomic="true">
+  <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+    <path d="M3 8.5L6.5 12L13 5" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>
+  Copied to clipboard
+</div>
+
+<script>
+  // ─── State ─────────────────────────────────────────────────────────────────
+  let currentNoticeText = '';
+  let currentNoticeType = '';
+
+  // ─── Elements ──────────────────────────────────────────────────────────────
+  const emptyState    = document.getElementById('preview-empty');
+  const contentState  = document.getElementById('preview-content');
+  const errorState    = document.getElementById('preview-error');
+  const errorMsg      = document.getElementById('preview-error-msg');
+  const previewText   = document.getElementById('preview-text');
+  const copyBtn       = document.getElementById('copy-btn');
+  const downloadBtn   = document.getElementById('download-btn');
+  const printBtn      = document.getElementById('print-btn');
+  const guidanceBox   = document.getElementById('guidance-box');
+  const guidanceText  = document.getElementById('guidance-text');
+  const toast         = document.getElementById('copy-toast');
+
+  // ─── Update preview ─────────────────────────────────────────────────────────
+  function showPreview(text) {
+    currentNoticeText = text;
+
+    if (previewText) previewText.textContent = text;
+
+    // Update Guidance
+    updateGuidance(currentNoticeType);
+
+    emptyState?.classList.add('hidden');
+    errorState?.classList.add('hidden');
+    contentState?.classList.remove('hidden');
+
+    if (copyBtn) copyBtn.disabled = false;
+    if (downloadBtn) downloadBtn.disabled = false;
+    if (printBtn) printBtn.disabled = false;
+  }
+
+  function showError(msg) {
+    emptyState?.classList.add('hidden');
+    contentState?.classList.add('hidden');
+    errorState?.classList.remove('hidden');
+    if (errorMsg) errorMsg.textContent = msg || 'An error occurred.';
+    if (copyBtn) copyBtn.disabled = true;
+    if (downloadBtn) downloadBtn.disabled = true;
+    if (printBtn) printBtn.disabled = true;
+  }
+
+  function updateGuidance(type) {
+    if (!guidanceBox || !guidanceText) return;
+    
+    let html = '';
+    switch(type) {
+      case 'cheque-dishonour':
+        html = `<p class="mb-2"><strong style="color:var(--color-error);">CRITICAL DEADLINES:</strong></p>
+                <ul class="list-disc pl-4 space-y-1">
+                  <li>You must send this notice within <strong>30 days</strong> of receiving the cheque return memo from the bank.</li>
+                  <li>Send via <strong>Registered Post with Acknowledgment Due (RPAD)</strong> and keep the receipt.</li>
+                  <li>If the drawer does not pay within <strong>15 days</strong> of receiving this notice, you have exactly <strong>30 days</strong> from the end of that 15-day period to file a criminal complaint in court.</li>
+                </ul>`;
+        break;
+      case 'eviction':
+      case 'rent-demand':
+        html = `<ul class="list-disc pl-4 space-y-1">
+                  <li>Send via <strong>Registered Post with Acknowledgment Due (RPAD)</strong>. Email can be used as a supplementary method.</li>
+                  <li>If they do not comply by the deadline, you must file a suit for eviction/recovery in the competent civil court or Rent Controller.</li>
+                </ul>`;
+        break;
+      case 'payment-default-clause':
+      case 'confidentiality-clause':
+      case 'termination-clause':
+      case 'nda-clause':
+        html = `<ul class="list-disc pl-4 space-y-1">
+                  <li>This is a contract clause. Copy and paste this into your main agreement or employment letter.</li>
+                  <li>Ensure the main agreement is printed on appropriately stamped non-judicial stamp paper as per your state's Stamp Act.</li>
+                </ul>`;
+        break;
+      default:
+        html = `<ul class="list-disc pl-4 space-y-1">
+                  <li>Send via <strong>Registered Post with Acknowledgment Due (RPAD)</strong> for the strongest evidentiary value in court.</li>
+                  <li>Retain a signed copy of the notice and the postal receipt for your records.</li>
+                </ul>`;
+    }
+    
+    guidanceText.innerHTML = html;
+    guidanceBox.classList.remove('hidden');
+  }
+
+  // ─── Listen for preview events from form ───────────────────────────────────
+  window.addEventListener('lng:preview-update', (e) => {
+    const { text, errorMsg: err, noticeType } = e.detail;
+    if (noticeType) currentNoticeType = noticeType;
+    if (err) {
+      showError(err);
+    } else if (text) {
+      showPreview(text);
+    }
+  });
+
+  // Also capture notice type from form submit events for filename
+  document.addEventListener('DOMContentLoaded', () => {
+    const typeSelect = document.getElementById('notice-type');
+    typeSelect?.addEventListener('change', () => {
+      currentNoticeType = typeSelect.value;
+    });
+  });
+
+  // ─── Copy to clipboard ──────────────────────────────────────────────────────
+  copyBtn?.addEventListener('click', async () => {
+    if (!currentNoticeText) return;
+
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        await navigator.clipboard.writeText(currentNoticeText);
+      } else {
+        // Textarea fallback
+        const ta = document.createElement('textarea');
+        ta.value = currentNoticeText;
+        ta.style.position = 'fixed';
+        ta.style.opacity = '0';
+        document.body.appendChild(ta);
+        ta.focus();
+        ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+      }
+      showToast();
+    } catch {
+      showToast('Failed to copy. Please select and copy the text manually.');
+    }
+  });
+
+  // ─── Download as .txt ───────────────────────────────────────────────────────
+  downloadBtn?.addEventListener('click', () => {
+    if (!currentNoticeText) return;
+
+    const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+    const typeSlug = currentNoticeType || 'notice';
+    const filename = `legal-${typeSlug}-${today}.txt`;
+
+    const blob = new Blob([currentNoticeText], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  });
+
+  // ─── Print ────────────────────────────────────────────────────────────────────
+  printBtn?.addEventListener('click', () => {
+    if (!currentNoticeText) return;
+    const printWindow = window.open('', '_blank');
+    if (!printWindow) {
+      showToast('Popup blocker prevented printing. Please allow popups.');
+      return;
+    }
+    printWindow.document.write(`
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <title>Legal Notice</title>
+          <style>
+            body { font-family: "Times New Roman", Times, serif; font-size: 12pt; line-height: 1.5; margin: 1in; white-space: pre-wrap; }
+            @media print {
+              body { margin: 0; padding: 1in; }
+              @page { margin: 0; }
+            }
+          </style>
+        </head>
+        <body>${currentNoticeText.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</body>
+      </html>
+    `);
+    printWindow.document.close();
+    printWindow.focus();
+    // setTimeout needed for some browsers to render before printing
+    setTimeout(() => {
+      printWindow.print();
+      // Optional: close after print dialog closes, but some users like to keep it open
+      // printWindow.close();
+    }, 250);
+  });
+
+  // ─── Toast ──────────────────────────────────────────────────────────────────
+  let toastTimer = null;
+  function showToast(message) {
+    if (toast) {
+      if (message) {
+        toast.querySelector('svg')?.remove();
+        toast.textContent = message;
+      }
+      toast.classList.add('is-visible');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => {
+        toast.classList.remove('is-visible');
+      }, 2500);
+    }
+  }
+</script>
